@@ -130,11 +130,15 @@ def main():
 
 	file_object = open(file_name)
 
+	# create graph and load with data
+
 	wrest = Wrest_Graph()
 
 	data_load(file_object, wrest)
 
 	file_object.close()
+
+	# run search
 
 	wrest.rivalry_search()
 
