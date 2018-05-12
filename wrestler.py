@@ -6,11 +6,32 @@
 # dependicies
 import sys
 
-# file handling
+# file handling/data loading
 
-def file_pull(a_file_object):
+def data_load(file_object, a_graph_object):
 
+	# get wrestlers and rivalries from object. strip out the 'solutions'
+	# bits at the end of the file
 
+	file_data = []
+
+	for line in file_object:
+		if line == '\r\n':
+			break
+		else:
+			file_data.append(line.strip())
+
+	# load the data from the file into the graph object
+
+	num_wrests = int(file_data[0])
+	num_rivalries = int(file_data[num_wrests + 1])
+
+	for wrest in file_data[1:(num_wrests + 1)]:
+		a_graph_object.add_wrest(wrest)
+
+	for rivalry in file_data[(num_wrests + 2):]:
+		parent_child = rivalry.split(' ')
+		a_graph_object.add_wrest_edge(parent_child[0], parent_child[1])
 
 # the meat and potatoes
 
@@ -55,18 +76,27 @@ class Wrest_Graph:
 					rivalry_flag = True
 
 					rival = self.wrest_graph[rival_index]
-					if(rival.bface_heel == None):
+
+					# wrestler and/or rival don't have type specified
+					if(wrest.bface_heel == None and rival.bface_heel == None):
+						wrest.bface_heel = 'babyface'
+						rival.bface_heel = 'heel'
+					elif(wrest.bface_heel == None and rival.bface_heel != None):
+						if(rival.bface_heel == 'babyface'):
+							wrest.bface_heel = 'heel'
+						else:
+							wrest.bface_heel = 'babyface'
+					elif(wrest.bface_heel != None and rival.bface_heel == None):
 						if(wrest.bface_heel == 'heel'):
 							rival.bface_heel = 'babyface'
-						else:
+						if(wrest.bface_heel == 'babyface'):
 							rival.bface_heel = 'heel'
-					else:
-						if rival.bface_heel == wrest.bface_heel:
-							print 'Impossible'
-							return 0
-					print 'Yes, possible'
+					elif rival.bface_heel == wrest.bface_heel:
+						print 'Impossible'
+						return 0
 
 			if rivalry_flag == True:
+				print 'Yes, possible'
 				babyfaces = [x.name for x in self.wrest_graph if x.bface_heel == 'babyface']
 				print 'Babyfaces:'
 				print babyfaces
@@ -80,7 +110,6 @@ class Wrest_Graph:
 		else:
 			print 'Opps! You must have at least 2 wrestlers to find rivalries.'
 			return 0
-
 
 class Wrest_Vert:
 
@@ -103,11 +132,9 @@ def main():
 
 	wrest = Wrest_Graph()
 
-	wrest.add_wrest('Mill')
+	data_load(file_object, wrest)
 
-	wrest.add_wrest('BAX')
-
-	wrest.add_wrest_edge('Mill', 'BAX')
+	file_object.close()
 
 	wrest.rivalry_search()
 
