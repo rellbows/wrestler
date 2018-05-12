@@ -5,10 +5,13 @@
 
 # file handling
 
+def file_pull(a_file_object):
+
+
 # the meat and potatoes
 
 class Wrest_Graph():
-	
+
 
 class Wrest_Vert():
 
